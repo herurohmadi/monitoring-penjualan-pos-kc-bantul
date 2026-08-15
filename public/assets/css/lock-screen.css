@@ -1,0 +1,27 @@
+.bg-lock-screen {
+  background-image: url('../images/bg-lock.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  min-height: 100vh;
+  position: relative;
+}
+
+.authentication-lock-screen {
+  position: relative;
+  z-index: 1;
+}
+
+/* Overlay gelap agar teks tetap terlihat */
+.bg-lock-screen::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 0;
+}
+
+.card {
+  position: relative;
+  z-index: 2;
+}
