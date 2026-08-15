@@ -151,9 +151,16 @@
 
                     {{-- Alamat & Keterangan --}}
                     <div class="col-12">
-                        <label for="alamat_lengkap" class="form-label">Alamat Lengkap</label>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <label for="alamat_lengkap" class="form-label mb-0">Alamat Lengkap</label>
+                            <button type="button" class="btn btn-sm btn-outline-primary" id="useCurrentLocationBtn">
+                                <i class="bx bx-current-location me-1"></i> Lokasi Saat Ini
+                            </button>
+                        </div>
                         <textarea class="form-control" id="alamat_lengkap" name="alamat_lengkap" rows="3"
                             placeholder="Alamat lengkap toko">{{ old('alamat_lengkap') }}</textarea>
+                        <small class="form-text text-muted fst-italic">Klik tombol di atas untuk mengisi alamat otomatis
+                            dari lokasi saat ini.</small>
                         @error('alamat_lengkap')
                             <div class="text-danger small mt-1">{{ $message }}</div>
                         @enderror
@@ -245,8 +252,101 @@
             const previewContainer = document.getElementById('preview-container');
             const confirmDeleteModal = new bootstrap.Modal(document.getElementById('confirmDeleteModal'));
             const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+            const useCurrentLocationBtn = document.getElementById('useCurrentLocationBtn');
+            const alamatLengkapInput = document.getElementById('alamat_lengkap');
+            const locationStatus = document.getElementById('location-status');
+            const mapContainer = document.getElementById('map');
             let fotoToDelete = null;
             let validFiles = [];
+
+            function setLocationStatus(message, isError = false) {
+                if (!locationStatus) return;
+                locationStatus.textContent = message;
+                locationStatus.classList.toggle('text-danger', isError);
+                locationStatus.classList.toggle('text-muted', !isError);
+            }
+
+            if (useCurrentLocationBtn) {
+                useCurrentLocationBtn.addEventListener('click', function() {
+                    if (!navigator.geolocation) {
+                        setLocationStatus('Browser Anda tidak mendukung fitur lokasi.', true);
+                        return;
+                    }
+
+                    useCurrentLocationBtn.disabled = true;
+                    useCurrentLocationBtn.innerHTML =
+                        '<span class="spinner-border spinner-border-sm me-1"></span> Mengambil...';
+                    setLocationStatus('Mengambil lokasi saat ini...');
+
+                    navigator.geolocation.getCurrentPosition(async function(position) {
+                            const latitude = position.coords.latitude;
+                            const longitude = position.coords.longitude;
+
+                            if (mapContainer) {
+                                mapContainer.style.display = 'block';
+                            }
+
+                            try {
+                                const response = await fetch(
+                                    `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}`, {
+                                        headers: {
+                                            'Accept': 'application/json'
+                                        }
+                                    }
+                                );
+
+                                if (!response.ok) {
+                                    throw new Error('Gagal mengambil alamat');
+                                }
+
+                                const data = await response.json();
+                                const alamat = data.display_name || 'Alamat tidak ditemukan';
+
+                                if (alamatLengkapInput) {
+                                    alamatLengkapInput.value = alamat;
+                                }
+
+                                setLocationStatus(
+                                    `Lokasi berhasil didapatkan (${latitude.toFixed(5)}, ${longitude.toFixed(5)}).`
+                                );
+                            } catch (error) {
+                                if (alamatLengkapInput) {
+                                    alamatLengkapInput.value =
+                                        `Lat: ${latitude}, Long: ${longitude}`;
+                                }
+
+                                setLocationStatus(
+                                    'Lokasi berhasil didapatkan, tetapi alamat lengkap tidak bisa didapatkan. Silakan isi manual.',
+                                    true);
+                            } finally {
+                                useCurrentLocationBtn.disabled = false;
+                                useCurrentLocationBtn.innerHTML =
+                                    '<i class="bx bx-current-location me-1"></i> Lokasi Saat Ini';
+                            }
+                        },
+                        function(error) {
+                            let message = 'Gagal mengambil lokasi.';
+
+                            if (error.code === 1) {
+                                message =
+                                    'Akses lokasi ditolak. Izinkan akses lokasi agar alamat otomatis terisi.';
+                            } else if (error.code === 2) {
+                                message = 'Lokasi tidak tersedia saat ini.';
+                            } else if (error.code === 3) {
+                                message = 'Waktu pengambilan lokasi habis.';
+                            }
+
+                            setLocationStatus(message, true);
+                            useCurrentLocationBtn.disabled = false;
+                            useCurrentLocationBtn.innerHTML =
+                                '<i class="bx bx-current-location me-1"></i> Lokasi Saat Ini';
+                        }, {
+                            enableHighAccuracy: true,
+                            timeout: 20000,
+                            maximumAge: 0
+                        });
+                });
+            }
 
             // Enable submit button saat checkbox dicentang
             checkbox.addEventListener('change', () => submitBtn.disabled = !checkbox.checked);
