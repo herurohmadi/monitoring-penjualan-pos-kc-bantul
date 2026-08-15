@@ -129,8 +129,15 @@
 
                     {{-- Alamat Lengkap --}}
                     <div class="col-12">
-                        <label for="alamat_lengkap" class="form-label">Alamat Lengkap</label>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <label for="alamat_lengkap" class="form-label mb-0">Alamat Lengkap</label>
+                            <button type="button" class="btn btn-sm btn-outline-primary" id="useCurrentLocationBtn">
+                                <i class="bx bx-current-location me-1"></i> Lokasi Saat Ini
+                            </button>
+                        </div>
                         <textarea class="form-control" id="alamat_lengkap" name="alamat_lengkap" rows="3">{{ old('alamat_lengkap', $item->alamat_lengkap) }}</textarea>
+                        <small class="form-text text-muted fst-italic">Klik tombol di atas untuk mengisi alamat otomatis
+                            dari lokasi saat ini.</small>
                         @error('alamat_lengkap')
                             <div class="text-danger small mt-1">{{ $message }}</div>
                         @enderror
@@ -241,9 +248,93 @@
             const deletedPhotosContainer = document.getElementById('deleted-photos-container');
             const confirmDeleteModal = new bootstrap.Modal(document.getElementById('confirmDeleteModal'));
             const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+            const useCurrentLocationBtn = document.getElementById('useCurrentLocationBtn');
+            const alamatLengkapInput = document.getElementById('alamat_lengkap');
 
             let fotoToDelete = null; // object foto yang akan dihapus
             let validFiles = []; // array foto baru yang dipilih
+
+            const buildAddressFromReverseGeocode = (address = {}) => {
+                const parts = [
+                    address.road,
+                    address.village || address.hamlet || address.suburb || address.neighbourhood,
+                    address.city || address.town || address.municipality || address.county,
+                    address.state || address.province || address.region,
+                    address.country
+                ].filter(Boolean);
+
+                return parts.join(', ');
+            };
+
+            const resetLocationButton = () => {
+                if (!useCurrentLocationBtn) return;
+                useCurrentLocationBtn.disabled = false;
+                useCurrentLocationBtn.innerHTML = '<i class="bx bx-current-location me-1"></i> Lokasi Saat Ini';
+            };
+
+            if (useCurrentLocationBtn && alamatLengkapInput) {
+                useCurrentLocationBtn.addEventListener('click', function() {
+                    if (!navigator.geolocation) {
+                        alert('Browser Anda tidak mendukung fitur lokasi.');
+                        return;
+                    }
+
+                    useCurrentLocationBtn.disabled = true;
+                    useCurrentLocationBtn.innerHTML =
+                        '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> Mengambil Lokasi...';
+
+                    navigator.geolocation.getCurrentPosition(async (position) => {
+                        const latitude = position.coords.latitude;
+                        const longitude = position.coords.longitude;
+
+                        try {
+                            const response = await fetch(
+                                `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`, {
+                                    headers: {
+                                        'Accept-Language': 'id-ID'
+                                    }
+                                }
+                            );
+
+                            if (!response.ok) {
+                                throw new Error('Gagal mengambil data alamat');
+                            }
+
+                            const data = await response.json();
+                            const fullAddress = data.display_name ||
+                                buildAddressFromReverseGeocode(data.address || {});
+                            alamatLengkapInput.value = fullAddress ||
+                                `Latitude: ${latitude}, Longitude: ${longitude}`;
+                        } catch (error) {
+                            alamatLengkapInput.value =
+                                `Latitude: ${latitude}, Longitude: ${longitude}`;
+                            console.error('Gagal reverse geocode:', error);
+                            alert(
+                                'Lokasi berhasil didapatkan, tetapi alamat lengkap tidak bisa ditampilkan. Silakan isi alamat manual.');
+                        } finally {
+                            resetLocationButton();
+                        }
+                    }, (error) => {
+                        resetLocationButton();
+                        let message = 'Tidak dapat mengakses lokasi saat ini.';
+
+                        if (error.code === 1) {
+                            message =
+                                'Akses lokasi ditolak. Silakan izinkan akses lokasi browser.';
+                        } else if (error.code === 2) {
+                            message = 'Lokasi tidak tersedia saat ini.';
+                        } else if (error.code === 3) {
+                            message = 'Waktu untuk mengambil lokasi habis.';
+                        }
+
+                        alert(message);
+                    }, {
+                        enableHighAccuracy: true,
+                        timeout: 20000,
+                        maximumAge: 0
+                    });
+                });
+            }
 
             // Enable submit button saat checkbox dicentang
             checkbox.addEventListener('change', () => submitBtn.disabled = !checkbox.checked);
