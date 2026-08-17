@@ -92,6 +92,7 @@
                             </div>
                         @enderror
                     </div>
+
                     {{-- Nama Online Shop --}}
                     <div class="col-md-6">
                         <label for="nama_olshop" class="form-label">Nama Online Shop</label>
@@ -101,6 +102,7 @@
                             <div class="text-danger small mt-1">{{ $message }}</div>
                         @enderror
                     </div>
+
                     {{-- Link Toko Online --}}
                     <div class="col-md-12">
                         <label for="link_toko" class="form-label">Link Toko Online</label>
@@ -111,7 +113,7 @@
                         @enderror
                     </div>
 
-                    {{-- Nama Pemilik & No HP --}}
+                    {{-- Nama Pemilik --}}
                     <div class="col-12 col-md-6">
                         <label for="nama_pemilik" class="form-label">Nama Pemilik</label>
                         <input type="text" class="form-control" id="nama_pemilik" name="nama_pemilik"
@@ -120,6 +122,8 @@
                             <div class="text-danger small mt-1">{{ $message }}</div>
                         @enderror
                     </div>
+
+                    {{-- No HP --}}
                     <div class="col-12 col-md-6">
                         <label for="nomor_hp" class="form-label">No. Telepon / WhatsApp</label>
                         <input type="tel" class="form-control" id="nomor_hp" name="nomor_hp"
@@ -129,7 +133,7 @@
                         @enderror
                     </div>
 
-                    {{-- Jenis Produk & Pesaing --}}
+                    {{-- Jenis Produk --}}
                     <div class="col-12 col-md-6">
                         <label for="jenis_produk" class="form-label">Jenis Produk</label>
                         <input type="text" class="form-control" id="jenis_produk" name="jenis_produk"
@@ -149,7 +153,7 @@
                         @enderror
                     </div>
 
-                    {{-- Alamat & Keterangan --}}
+                    {{-- Alamat --}}
                     <div class="col-12">
                         <div class="d-flex justify-content-between align-items-center mb-2">
                             <label for="alamat_lengkap" class="form-label mb-0">Alamat Lengkap</label>
@@ -179,8 +183,14 @@
                     {{-- Foto Aktivasi --}}
                     <div class="col-md-12">
                         <label for="foto" class="form-label">Foto Aktivasi Seller</label>
-                        <input type="file" class="form-control" id="foto" name="foto[]" multiple
-                            accept="image/*" required>
+                        <div class="d-flex align-items-center gap-2">
+                            <input type="file" class="form-control" id="foto" name="foto[]" multiple
+                                accept="image/*" capture="environment" required>
+                            <button type="button" class="btn btn-outline-primary me-2" id="cameraTriggerBtn"
+                                aria-label="Ambil foto dari kamera" title="Ambil foto dari kamera">
+                                <i class="bx bx-camera fs-4 me-1"></i>
+                            </button>
+                        </div>
                         <small class="form-text text-muted fst-italic">Boleh lebih dari 1 (maks. 10MB / file)</small>
 
                         @if ($errors->has('foto'))
@@ -244,189 +254,5 @@
 @endsection
 
 @push('scripts')
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const checkbox = document.getElementById('gridCheck');
-            const submitBtn = document.getElementById('submitBtn');
-            const fotoInput = document.getElementById('foto');
-            const previewContainer = document.getElementById('preview-container');
-            const confirmDeleteModal = new bootstrap.Modal(document.getElementById('confirmDeleteModal'));
-            const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
-            const useCurrentLocationBtn = document.getElementById('useCurrentLocationBtn');
-            const alamatLengkapInput = document.getElementById('alamat_lengkap');
-            const locationStatus = document.getElementById('location-status');
-            const mapContainer = document.getElementById('map');
-            let fotoToDelete = null;
-            let validFiles = [];
-
-            function setLocationStatus(message, isError = false) {
-                if (!locationStatus) return;
-                locationStatus.textContent = message;
-                locationStatus.classList.toggle('text-danger', isError);
-                locationStatus.classList.toggle('text-muted', !isError);
-            }
-
-            if (useCurrentLocationBtn) {
-                useCurrentLocationBtn.addEventListener('click', function() {
-                    if (!navigator.geolocation) {
-                        setLocationStatus('Browser Anda tidak mendukung fitur lokasi.', true);
-                        return;
-                    }
-
-                    useCurrentLocationBtn.disabled = true;
-                    useCurrentLocationBtn.innerHTML =
-                        '<span class="spinner-border spinner-border-sm me-1"></span> Mengambil...';
-                    setLocationStatus('Mengambil lokasi saat ini...');
-
-                    navigator.geolocation.getCurrentPosition(async function(position) {
-                            const latitude = position.coords.latitude;
-                            const longitude = position.coords.longitude;
-
-                            if (mapContainer) {
-                                mapContainer.style.display = 'block';
-                            }
-
-                            try {
-                                const response = await fetch(
-                                    `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}`, {
-                                        headers: {
-                                            'Accept': 'application/json'
-                                        }
-                                    }
-                                );
-
-                                if (!response.ok) {
-                                    throw new Error('Gagal mengambil alamat');
-                                }
-
-                                const data = await response.json();
-                                const alamat = data.display_name || 'Alamat tidak ditemukan';
-
-                                if (alamatLengkapInput) {
-                                    alamatLengkapInput.value = alamat;
-                                }
-
-                                setLocationStatus(
-                                    `Lokasi berhasil didapatkan (${latitude.toFixed(5)}, ${longitude.toFixed(5)}).`
-                                );
-                            } catch (error) {
-                                if (alamatLengkapInput) {
-                                    alamatLengkapInput.value =
-                                        `Lat: ${latitude}, Long: ${longitude}`;
-                                }
-
-                                setLocationStatus(
-                                    'Lokasi berhasil didapatkan, tetapi alamat lengkap tidak bisa didapatkan. Silakan isi manual.',
-                                    true);
-                            } finally {
-                                useCurrentLocationBtn.disabled = false;
-                                useCurrentLocationBtn.innerHTML =
-                                    '<i class="bx bx-current-location me-1"></i> Lokasi Saat Ini';
-                            }
-                        },
-                        function(error) {
-                            let message = 'Gagal mengambil lokasi.';
-
-                            if (error.code === 1) {
-                                message =
-                                    'Akses lokasi ditolak. Izinkan akses lokasi agar alamat otomatis terisi.';
-                            } else if (error.code === 2) {
-                                message = 'Lokasi tidak tersedia saat ini.';
-                            } else if (error.code === 3) {
-                                message = 'Waktu pengambilan lokasi habis.';
-                            }
-
-                            setLocationStatus(message, true);
-                            useCurrentLocationBtn.disabled = false;
-                            useCurrentLocationBtn.innerHTML =
-                                '<i class="bx bx-current-location me-1"></i> Lokasi Saat Ini';
-                        }, {
-                            enableHighAccuracy: true,
-                            timeout: 20000,
-                            maximumAge: 0
-                        });
-                });
-            }
-
-            // Enable submit button saat checkbox dicentang
-            checkbox.addEventListener('change', () => submitBtn.disabled = !checkbox.checked);
-
-            // Preview Foto
-            fotoInput.addEventListener('change', function(event) {
-                const files = Array.from(event.target.files);
-                const maxSize = 10 * 1024 * 1024;
-                validFiles = [];
-
-                files.forEach(file => {
-                    if (file.size <= maxSize) validFiles.push(file);
-                    else alert(`File "${file.name}" lebih dari 10MB dan tidak akan dipilih.`);
-                });
-
-                previewContainer.innerHTML = '';
-
-                validFiles.forEach((file, index) => {
-                    const reader = new FileReader();
-                    reader.onload = e => {
-                        const wrapper = document.createElement('div');
-                        wrapper.className =
-                            'position-relative rounded overflow-hidden border shadow-sm';
-                        wrapper.style.width = '120px';
-                        wrapper.style.height = '120px';
-                        wrapper.style.flex = '0 0 auto';
-
-                        const img = document.createElement('img');
-                        img.src = e.target.result;
-                        img.alt = 'Foto ' + (index + 1);
-                        img.style.width = '100%';
-                        img.style.height = '100%';
-                        img.style.objectFit = 'cover';
-
-                        const icon = document.createElement('span');
-                        icon.className =
-                            'position-absolute top-0 end-0 p-1 text-danger cursor-pointer';
-                        icon.innerHTML = '<i class="bx bx-trash"></i>';
-                        icon.onclick = () => {
-                            fotoToDelete = {
-                                wrapper,
-                                index
-                            };
-                            confirmDeleteModal.show();
-                        };
-
-                        wrapper.appendChild(img);
-                        wrapper.appendChild(icon);
-                        previewContainer.appendChild(wrapper);
-                    };
-                    reader.readAsDataURL(file);
-                });
-
-                const dt = new DataTransfer();
-                validFiles.forEach(f => dt.items.add(f));
-                fotoInput.files = dt.files;
-            });
-
-            // Hapus foto dari preview dan input
-            confirmDeleteBtn.addEventListener('click', () => {
-                if (!fotoToDelete) return;
-                const {
-                    wrapper,
-                    index
-                } = fotoToDelete;
-                validFiles.splice(index, 1);
-
-                const dt = new DataTransfer();
-                validFiles.forEach(f => dt.items.add(f));
-                fotoInput.files = dt.files;
-
-                wrapper.remove();
-
-                // Re-render alt text
-                Array.from(previewContainer.children).forEach((child, i) => child.querySelector('img').alt =
-                    'Foto ' + (i + 1));
-
-                confirmDeleteModal.hide();
-                fotoToDelete = null;
-            });
-        });
-    </script>
+    <script src="{{ asset('assets/js/support-views.js') }}"></script>
 @endpush

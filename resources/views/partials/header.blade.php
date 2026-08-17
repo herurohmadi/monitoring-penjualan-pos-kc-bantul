@@ -7,9 +7,10 @@
                 <!-- Logo & Sistem -->
                 <div class="d-flex align-items-center">
                     <a href="{{ route('dashboard') }}" class="text-decoration-none text-dark fw-bold fs-6">
-                        <span class="d-none d-md-inline text-primary">SISTEM LAPORAN</span>
-                        <span id="userName"
-                            class="ms-1 text-secondary limit-text">{{ Auth::user()->name ?? 'Guest' }}</span>
+                        <span class="d-none d-md-inline text-primary">LAPORAN</span>
+                        <span id="userName" class="ms-1 text-secondary limit-text">
+                            {{ Str::after(Auth::user()->name ?? 'Guest', ' - ') }}
+                        </span>
                     </a>
                 </div>
 
@@ -22,7 +23,9 @@
                                 class="rounded-circle border border-2 border-primary" width="40" height="40"
                                 loading="lazy">
                             <div class="ps-2 d-none d-sm-block text-end">
-                                <p id="userName" class="mb-0 fw-bold small limit-text">{{ Auth::user()->name }}</p>
+                                <p id="userName" class="mb-0 fw-bold small limit-text">
+                                    {{ Str::after(Auth::user()->name, ' - ') }}
+                                </p>
                                 <script>
                                     document.addEventListener("DOMContentLoaded", function() {
                                         const elements = document.querySelectorAll(".limit-text");
@@ -34,7 +37,7 @@
                                         });
                                     });
                                 </script>
-                                <p class="mb-0 text-muted small">Keluar?</p>
+                                <p class="mb-0 text-muted small text-start">Keluar?</p>
                             </div>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="userDropdown">
