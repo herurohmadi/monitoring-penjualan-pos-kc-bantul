@@ -33,9 +33,18 @@
                 </span>
             </div>
             <div class="d-flex gap-2 align-items-center">
-                <label for="filterBulan" class="form-label mb-0 text-nowrap">Pilih Bulan:</label>
-                <input type="month" name="month" class="form-control form-control-sm" id="filterBulan"
-                    value="{{ $monthInput }}" aria-describedby="bulanTerpilih">
+                <label for="filterBulan" class="form-label mb-0 text-nowrap">
+                    Pilih Bulan:
+                </label>
+
+                <div class="input-group input-group-sm">
+                    <input type="month" name="month" class="form-control" id="filterBulan" value="{{ $monthInput }}"
+                        aria-describedby="bulanTerpilih">
+
+                    <span class="input-group-text">
+                        <i class="bx bx-calendar"></i>
+                    </span>
+                </div>
             </div>
         </div>
     </form>
@@ -299,7 +308,7 @@
             @endforeach
 
             {{-- Placeholder jika slot kosong --}}
-           @for ($i = 0; $i < $placeholders; $i++)
+            @for ($i = 0; $i < $placeholders; $i++)
                 <div class="col d-none d-lg-block">
                     <div class="card shadow-sm h-100">
                         <div style="height:160px;overflow:hidden;">
