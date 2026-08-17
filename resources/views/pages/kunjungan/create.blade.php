@@ -53,7 +53,6 @@
                         @enderror
                     </div>
 
-
                     {{-- Tanggal --}}
                     <div class="col-12 col-md-6">
                         <label for="tanggal" class="form-label">Tanggal</label>
@@ -114,17 +113,24 @@
                         @enderror
                     </div>
 
-                    {{-- Foto --}}
-                    <div class="col-12">
-                        <label for="foto" class="form-label">Foto Kunjungan</label>
-                        <input type="file" class="form-control" id="foto" name="foto[]" multiple accept="image/*"
-                            required>
-                        <label class="form-label small fst-italic">Boleh lebih dari 1 (maks. 10MB / file)</label>
+                    <div class="col-md-12">
+                        <label for="foto" class="form-label">Foto Aktivasi Seller</label>
+                        <div class="d-flex align-items-center gap-2">
+                            <input type="file" class="form-control" id="foto" name="foto[]" multiple
+                                accept="image/*" capture="environment" required>
+                            <button type="button" class="btn btn-outline-primary me-2" id="cameraTriggerBtn"
+                                aria-label="Ambil foto dari kamera" title="Ambil foto dari kamera">
+                                <i class="bx bx-camera fs-4 me-1"></i>
+                            </button>
+                        </div>
+                        <small class="form-text text-muted fst-italic">Boleh lebih dari 1 (maks. 10MB / file)</small>
 
-                        @if ($errors->has('foto') || $errors->has('foto.*'))
+                        @if ($errors->has('foto'))
                             @foreach ($errors->get('foto') as $error)
-                                <div class="text-danger small mt-1">{{ $error[0] ?? $error }}</div>
+                                <div class="text-danger small mt-1">{{ $error }}</div>
                             @endforeach
+                        @endif
+                        @if ($errors->has('foto.*'))
                             @foreach ($errors->get('foto.*') as $error)
                                 <div class="text-danger small mt-1">{{ $error[0] ?? $error }}</div>
                             @endforeach
@@ -132,7 +138,8 @@
                     </div>
 
                     {{-- Preview Foto --}}
-                    <div class="mt-3 d-flex flex-wrap gap-2" id="preview-container" style="overflow-x:auto;"></div>
+                    <div class="d-flex overflow-auto gap-2 mt-2" id="preview-container" style="padding-bottom:8px;">
+                    </div>
 
                     {{-- Checkbox --}}
                     <div class="col-12">
@@ -180,96 +187,5 @@
 @endsection
 
 @push('scripts')
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const checkbox = document.getElementById('gridCheck');
-            const submitBtn = document.getElementById('submitBtn');
-            const fotoInput = document.getElementById('foto');
-            const previewContainer = document.getElementById('preview-container');
-            const confirmDeleteModal = new bootstrap.Modal(document.getElementById('confirmDeleteModal'));
-            const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
-            let fotoToDelete = null;
-            let validFiles = [];
-
-            // Enable submit button saat checkbox dicentang
-            checkbox.addEventListener('change', () => submitBtn.disabled = !checkbox.checked);
-
-            // Preview Foto
-            fotoInput.addEventListener('change', function(event) {
-                const files = Array.from(event.target.files);
-                const maxSize = 10 * 1024 * 1024;
-                validFiles = [];
-
-                files.forEach(file => {
-                    if (file.size <= maxSize) validFiles.push(file);
-                    else alert(`File "${file.name}" lebih dari 10MB dan tidak akan dipilih.`);
-                });
-
-                previewContainer.innerHTML = '';
-
-                validFiles.forEach((file, index) => {
-                    const reader = new FileReader();
-                    reader.onload = e => {
-                        const wrapper = document.createElement('div');
-                        wrapper.className =
-                            'position-relative rounded overflow-hidden border shadow-sm';
-                        wrapper.style.width = '120px';
-                        wrapper.style.height = '120px';
-                        wrapper.style.flex = '0 0 auto';
-
-                        const img = document.createElement('img');
-                        img.src = e.target.result;
-                        img.alt = 'Foto ' + (index + 1);
-                        img.style.width = '100%';
-                        img.style.height = '100%';
-                        img.style.objectFit = 'cover';
-
-                        const icon = document.createElement('span');
-                        icon.className =
-                            'position-absolute top-0 end-0 p-1 text-danger cursor-pointer';
-                        icon.innerHTML = '<i class="bx bx-trash"></i>';
-                        icon.onclick = () => {
-                            fotoToDelete = {
-                                wrapper,
-                                index
-                            };
-                            confirmDeleteModal.show();
-                        };
-
-                        wrapper.appendChild(img);
-                        wrapper.appendChild(icon);
-                        previewContainer.appendChild(wrapper);
-                    };
-                    reader.readAsDataURL(file);
-                });
-
-                const dt = new DataTransfer();
-                validFiles.forEach(f => dt.items.add(f));
-                fotoInput.files = dt.files;
-            });
-
-            // Hapus foto dari preview dan input
-            confirmDeleteBtn.addEventListener('click', () => {
-                if (!fotoToDelete) return;
-                const {
-                    wrapper,
-                    index
-                } = fotoToDelete;
-                validFiles.splice(index, 1);
-
-                const dt = new DataTransfer();
-                validFiles.forEach(f => dt.items.add(f));
-                fotoInput.files = dt.files;
-
-                wrapper.remove();
-
-                // Re-render alt text
-                Array.from(previewContainer.children).forEach((child, i) => child.querySelector('img').alt =
-                    'Foto ' + (i + 1));
-
-                confirmDeleteModal.hide();
-                fotoToDelete = null;
-            });
-        });
-    </script>
+    <script src="{{ asset('assets/js/support-views.js') }}"></script>
 @endpush

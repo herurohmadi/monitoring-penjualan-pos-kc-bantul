@@ -4,11 +4,14 @@
 
 @section('content')
     <div class="col-xl-7 mx-auto">
+        {{-- Header --}}
         <div class="card-title d-flex align-items-center mb-3">
             <div class="me-1 font-22 text-primary"><i class="fadeIn animated bx bx-user"></i></div>
             <h6 class="mb-0 text-uppercase">Edit Aktivasi Seller</h6>
         </div>
         <hr />
+
+        {{-- Form Card --}}
         <div class="card border-top border-0 border-4 border-primary">
             <div class="card-body">
                 <form class="row g-3" method="POST" action="{{ route('aktivasiseller.update', $item->id) }}"

@@ -4,6 +4,7 @@
 
 @section('content')
     <div class="col-xl-7 mx-auto">
+        {{-- Header --}}
         <div class="card-title d-flex align-items-center">
             <div class="me-1 font-22 text-danger">
                 <i class="fadeIn animated bx bx-edit"></i>
@@ -11,6 +12,8 @@
             <h6 class="mb-0 text-uppercase">Edit Canvasing</h6>
         </div>
         <hr />
+
+        {{-- Form Card --}}
         <div class="card border-top border-0 border-4 border-danger">
             <div class="card-body">
                 <form class="row g-3" method="POST" action="{{ route('canvasing.update', $item->id) }}"
@@ -18,11 +21,13 @@
                     @csrf
                     @method('PUT')
 
+                    {{-- Kantor POS --}}
                     <div class="col-12 col-md-6">
                         <label for="kantor" class="form-label">Kantor POS</label>
                         <input type="text" class="form-control" id="kantor" value="{{ $item->kantor }}" disabled>
                     </div>
 
+                    {{-- Tanggal --}}
                     <div class="col-12 col-md-6">
                         <label for="tanggal" class="form-label">Tanggal</label>
                         <input type="datetime-local" class="form-control" id="tanggal" name="tanggal"
@@ -33,88 +38,126 @@
                             <div class="text-danger small mt-1">{{ $message }}</div>
                         @enderror
                     </div>
+
                     {{-- Jenis Canvasing --}}
                     <div class="col-12">
                         <label for="jenis_canvasing" class="form-label">Jenis Canvasing</label>
-
                         <select class="form-select" id="jenis_canvasing" name="jenis_canvasing" required>
-                            <option value="" disabled>
-                                -- Pilih Jenis Canvasing --
-                            </option>
-
+                            <option value="" disabled>-- Pilih Jenis Canvasing --</option>
                             <option value="KURLOG"
-                                {{ old('jenis_canvasing', $item->jenis_canvasing) == 'KURLOG' ? 'selected' : '' }}>
-                                KURLOG
+                                {{ old('jenis_canvasing', $item->jenis_canvasing) == 'KURLOG' ? 'selected' : '' }}>KURLOG
                             </option>
-
                             <option value="JASKUG"
-                                {{ old('jenis_canvasing', $item->jenis_canvasing) == 'JASKUG' ? 'selected' : '' }}>
-                                JASKUG
+                                {{ old('jenis_canvasing', $item->jenis_canvasing) == 'JASKUG' ? 'selected' : '' }}>JASKUG
                             </option>
-
                             <option value="Canvasing Lainnya"
                                 {{ old('jenis_canvasing', $item->jenis_canvasing) == 'Canvasing Lainnya' ? 'selected' : '' }}>
-                                Canvasing Lainnya
-                            </option>
+                                Canvasing Lainnya</option>
                         </select>
-
                         @error('jenis_canvasing')
                             <div class="text-danger small mt-1">{{ $message }}</div>
                         @enderror
                     </div>
 
-
+                    {{-- Keterangan --}}
                     <div class="col-12">
                         <label for="keterangan" class="form-label">Keterangan Canvasing</label>
                         <textarea class="form-control" id="keterangan" name="keterangan" rows="3">{{ old('keterangan', $item->keterangan) }}</textarea>
-
                         @error('keterangan')
                             <div class="text-danger small mt-1">{{ $message }}</div>
                         @enderror
                     </div>
 
-
                     {{-- Foto Lama --}}
-                    @php $fotoLama = json_decode($item->foto ?? '[]', true); @endphp
+                    @php
+                        $fotoLama = json_decode($item->foto ?? '[]', true);
+                    @endphp
+
                     @if (!empty($fotoLama))
                         <div class="col-12">
                             <label class="form-label">Foto Lama</label>
+
                             <div class="d-flex flex-wrap gap-2" id="existing-photos">
+
                                 @foreach ($fotoLama as $foto)
-                                    <div class="position-relative foto-wrapper">
-                                        <img src="{{ asset($foto) }}" loading="lazy" alt="Foto Lama"
-                                            style="width:120px; height:auto; object-fit:cover; border-radius:6px;">
+                                    <div class="position-relative foto-wrapper"
+                                        style="width:120px; height:120px; flex:0 0 auto;">
+
+                                        <img src="{{ asset($foto) }}" loading="lazy" alt="Foto Aktivasi Seller"
+                                            style="
+                            width:100%;
+                            height:100%;
+                            object-fit:cover;
+                            border-radius:6px;
+                            border:1px solid #ddd;
+                        ">
+
                                         <span class="hapus-foto" data-foto="{{ $foto }}"
-                                            style="position:absolute; top:4px; right:4px; cursor:pointer; font-size:20px; color:#e53935;">
+                                            style="
+                            position:absolute;
+                            top:4px;
+                            right:4px;
+                            cursor:pointer;
+                            font-size:20px;
+                            color:#e53935;
+                        "
+                                            title="Hapus foto">
+
                                             <i class="bx bx-trash"></i>
+
                                         </span>
+
                                     </div>
                                 @endforeach
+
                             </div>
                         </div>
                     @endif
 
-                    {{-- 🟢 Tempatkan input hidden dinamis di sini --}}
+                    {{-- Hidden container untuk foto yang dihapus --}}
                     <div id="deleted-photos-container"></div>
 
                     {{-- Foto Baru --}}
-                    <div class="col-12">
-                        <label for="foto" class="form-label">Tambah Foto Baru <span class="text-danger required-star"
-                                style="display: {{ empty($fotoLama) ? 'inline' : 'none' }};">*</span></label>
-                        <input type="file" class="form-control" id="foto" name="foto[]" multiple
-                            accept="image/*"{{ empty($fotoLama) ? ' required' : '' }}>
-                        @if ($errors->has('foto') || $errors->has('foto.*'))
-                            @foreach ($errors->get('foto') as $error)
-                                <div class="text-danger small mt-1">{{ $error[0] }}</div>
-                            @endforeach
-                            @foreach ($errors->get('foto.*') as $error)
-                                <div class="text-danger small mt-1">{{ $error[0] }}</div>
-                            @endforeach
-                        @endif
+                    <div class="col-12 mt-2">
+
+                        <label for="foto" class="form-label">
+                            Tambah Foto Baru
+
+                            <span class="text-danger required-star"
+                                style="display: {{ empty($fotoLama) ? 'inline' : 'none' }};">
+                                *
+                            </span>
+                        </label>
+
+                        <div class="d-flex align-items-center gap-2">
+
+                            {{-- Input foto --}}
+                            <input type="file" class="form-control" id="foto" name="foto[]" multiple
+                                accept="image/*" capture="environment" {{ empty($fotoLama) ? 'required' : '' }}>
+
+                            {{-- Tombol kamera --}}
+                            <button type="button"
+                                class="btn btn-outline-primary d-flex align-items-center justify-content-center"
+                                id="cameraTriggerBtn" aria-label="Ambil foto dari kamera" title="Ambil foto dari kamera"
+                                style="width: 42px; height: 38px; min-width: 42px; padding: 0;">
+
+                                <i class="bx bx-camera fs-4"></i>
+
+                            </button>
+
+                        </div>
+
+                        <small class="form-text text-muted fst-italic">
+                            Boleh lebih dari 1 (maks. 10MB / file)
+                        </small>
+
                     </div>
 
-                    <div class="mt-3 d-flex flex-wrap gap-2" id="preview-container" style="overflow-x:auto;"></div>
+                    {{-- Preview foto baru --}}
+                    <div class="d-flex flex-wrap gap-2 mt-2" id="preview-container" style="overflow-x:auto;">
+                    </div>
 
+                    {{-- Checkbox Konfirmasi --}}
                     <div class="col-12">
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="gridCheck">
@@ -122,6 +165,7 @@
                         </div>
                     </div>
 
+                    {{-- Form Actions --}}
                     <div class="col-12 d-flex flex-column flex-md-row justify-content-between gap-2 mt-3">
                         <button type="submit" class="btn btn-primary px-5" id="submitBtn" disabled>Perbarui</button>
                         <a href="{{ route('canvasing') }}" class="btn btn-secondary px-5">Kembali</a>
@@ -129,36 +173,6 @@
                 </form>
             </div>
         </div>
-
-        <style>
-            /* Optimasi: Minify CSS dan gunakan media queries yang efisien */
-            @media (max-width: 576px) {
-                .card-body {
-                    padding: 1rem !important;
-                }
-
-                .form-label {
-                    font-size: 1rem;
-                }
-
-                .form-control,
-                textarea {
-                    font-size: 1rem;
-                }
-
-                #preview-container>div {
-                    margin-bottom: 8px;
-                }
-
-                #preview-container {
-                    gap: 8px !important;
-                }
-
-                .btn {
-                    width: 100%;
-                }
-            }
-        </style>
     </div>
 @endsection
 <!-- Modal Konfirmasi Hapus Foto (Rukada Styled) -->
@@ -191,140 +205,5 @@
 </div>
 
 @push('scripts')
-    <script>
-        // Optimasi: Cache DOM elements dan gunakan isProcessing flag
-        let isProcessing = false;
-        const checkbox = document.getElementById('gridCheck');
-        const submitBtn = document.getElementById('submitBtn');
-        const deletedPhotosContainer = document.getElementById('deleted-photos-container');
-        const confirmDeleteModal = new bootstrap.Modal(document.getElementById('confirmDeleteModal'));
-        const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
-        const fotoInput = document.getElementById('foto');
-        const previewContainer = document.getElementById('preview-container');
-        let fotoToDelete = null;
-
-        document.addEventListener('DOMContentLoaded', function() {
-            // Enable submit kalau checkbox dicentang
-            checkbox.addEventListener('change', function() {
-                submitBtn.disabled = !this.checked;
-            });
-
-            // Klik ikon hapus → buka modal konfirmasi
-            document.querySelectorAll('.hapus-foto').forEach(icon => {
-                icon.addEventListener('click', function() {
-                    if (isProcessing) return;
-                    fotoToDelete = this;
-                    confirmDeleteModal.show();
-                });
-            });
-
-            // Saat klik "Hapus" di modal
-            confirmDeleteBtn.addEventListener('click', function() {
-                if (!fotoToDelete || isProcessing) return;
-                isProcessing = true;
-
-                const foto = fotoToDelete.getAttribute('data-foto');
-                const input = document.createElement('input');
-                input.type = 'hidden';
-                input.name = 'deleted_photos[]';
-                input.value = foto;
-                deletedPhotosContainer.appendChild(input);
-
-                const wrapper = fotoToDelete.closest('.foto-wrapper');
-                wrapper.style.transition = 'opacity 0.3s ease';
-                wrapper.style.opacity = '0';
-                setTimeout(() => {
-                    wrapper.remove();
-                    isProcessing = false;
-
-                    // Update required jika tidak ada foto lagi
-                    const remainingPhotos = document.querySelectorAll('.foto-wrapper').length;
-                    if (remainingPhotos === 0) {
-                        fotoInput.required = true;
-                        document.querySelector('.required-star').style.display = 'inline';
-                    } else {
-                        fotoInput.required = false;
-                        document.querySelector('.required-star').style.display = 'none';
-                    }
-                }, 300);
-
-                confirmDeleteModal.hide();
-            });
-
-            // Preview foto baru dengan optimasi
-            fotoInput.addEventListener('change', function(event) {
-                if (isProcessing) return;
-                isProcessing = true;
-
-                previewContainer.innerHTML = '';
-                const files = Array.from(event.target.files);
-                const maxSize = 10 * 1024 * 1024;
-                const validFiles = [];
-                let loadedCount = 0;
-
-                files.forEach((file, index) => {
-                    if (file.size <= maxSize) {
-                        validFiles.push(file);
-                        const reader = new FileReader();
-                        reader.onload = function(e) {
-                            const wrapper = document.createElement('div');
-                            wrapper.classList.add('position-relative');
-                            wrapper.style.marginRight = '8px';
-
-                            const img = document.createElement('img');
-                            img.src = e.target.result;
-                            img.alt = 'Foto ' + (index + 1);
-                            img.style.width = '120px';
-                            img.style.height = 'auto';
-                            img.style.objectFit = 'cover';
-                            img.style.borderRadius = '6px';
-                            img.style.boxShadow = '0 0 5px rgba(0,0,0,0.2)';
-                            img.loading = 'lazy'; // Optimasi lazy loading
-
-                            const icon = document.createElement('span');
-                            icon.innerHTML = '<i class="bx bx-trash"></i>';
-                            icon.style.position = 'absolute';
-                            icon.style.top = '4px';
-                            icon.style.right = '4px';
-                            icon.style.cursor = 'pointer';
-                            icon.style.fontSize = '20px';
-                            icon.style.color = '#e53935';
-
-                            icon.onclick = function() {
-                                validFiles.splice(index, 1);
-                                const dataTransfer = new DataTransfer();
-                                validFiles.forEach(f => dataTransfer.items.add(f));
-                                event.target.files = dataTransfer.files;
-                                wrapper.remove();
-                            };
-
-                            wrapper.appendChild(img);
-                            wrapper.appendChild(icon);
-                            previewContainer.appendChild(wrapper);
-
-                            loadedCount++;
-                            if (loadedCount === validFiles.length) {
-                                isProcessing = false;
-                            }
-                        };
-                        reader.readAsDataURL(file);
-                    } else {
-                        alert(`File "${file.name}" lebih dari 10MB dan tidak akan dipilih.`);
-                        loadedCount++;
-                        if (loadedCount === files.length) {
-                            isProcessing = false;
-                        }
-                    }
-                });
-
-                const dataTransfer = new DataTransfer();
-                validFiles.forEach(f => dataTransfer.items.add(f));
-                event.target.files = dataTransfer.files;
-
-                if (validFiles.length === 0) {
-                    isProcessing = false;
-                }
-            });
-        });
-    </script>
+    <script src="{{ asset('assets/js/support-views.js') }}"></script>
 @endpush

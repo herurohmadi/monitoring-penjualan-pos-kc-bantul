@@ -90,6 +90,7 @@
                         <label for="keterangan_lainnya" class="form-label">Keterangan Tambahan</label>
                         <textarea class="form-control" id="keterangan_lainnya" name="keterangan_lainnya" rows="3">{{ old('keterangan_lainnya', $item->keterangan_lainnya) }}</textarea>
                     </div>
+                    
                     {{-- Foto Lama --}}
                     @php $fotoLama = json_decode($item->foto ?? '[]', true); @endphp
                     @if (!empty($fotoLama))
@@ -114,19 +115,37 @@
                     <div id="deleted-photos-container"></div>
 
                     {{-- Foto Baru --}}
-                    <div class="col-12">
-                        <label for="foto" class="form-label">Tambah Foto Baru <span class="text-danger required-star"
-                                style="display: {{ empty($fotoLama) ? 'inline' : 'none' }};">*</span></label>
-                        <input type="file" class="form-control" id="foto" name="foto[]" multiple
-                            accept="image/*"{{ empty($fotoLama) ? ' required' : '' }}>
-                        @if ($errors->has('foto') || $errors->has('foto.*'))
-                            @foreach ($errors->get('foto') as $error)
-                                <div class="text-danger small mt-1">{{ $error[0] }}</div>
-                            @endforeach
-                            @foreach ($errors->get('foto.*') as $error)
-                                <div class="text-danger small mt-1">{{ $error[0] }}</div>
-                            @endforeach
-                        @endif
+                    <div class="col-12 mt-2">
+
+                        <label for="foto" class="form-label">
+                            Tambah Foto Baru
+
+                            <span class="text-danger required-star"
+                                style="display: {{ empty($fotoLama) ? 'inline' : 'none' }};">
+                                *
+                            </span>
+                        </label>
+
+                        <div class="d-flex align-items-center gap-2">
+
+                            {{-- Input foto --}}
+                            <input type="file" class="form-control" id="foto" name="foto[]" multiple
+                                accept="image/*" capture="environment" {{ empty($fotoLama) ? 'required' : '' }}>
+
+                            {{-- Tombol kamera --}}
+                            <button type="button" class="btn btn-outline-primary" id="cameraTriggerBtn"
+                                aria-label="Ambil foto dari kamera" title="Ambil foto dari kamera">
+
+                                <i class="bx bx-camera fs-4"></i>
+
+                            </button>
+
+                        </div>
+
+                        <small class="form-text text-muted fst-italic">
+                            Boleh lebih dari 1 (maks. 10MB / file)
+                        </small>
+
                     </div>
 
                     <div class="mt-3 d-flex flex-wrap gap-2" id="preview-container" style="overflow-x:auto;"></div>
@@ -179,140 +198,6 @@
         </div>
 
         @push('scripts')
-            <script>
-                // Optimasi: Cache DOM elements dan gunakan isProcessing flag
-                let isProcessing = false;
-                const checkbox = document.getElementById('gridCheck');
-                const submitBtn = document.getElementById('submitBtn');
-                const deletedPhotosContainer = document.getElementById('deleted-photos-container');
-                const confirmDeleteModal = new bootstrap.Modal(document.getElementById('confirmDeleteModal'));
-                const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
-                const fotoInput = document.getElementById('foto');
-                const previewContainer = document.getElementById('preview-container');
-                let fotoToDelete = null;
-
-                document.addEventListener('DOMContentLoaded', function() {
-                    // Enable submit button based on checkbox
-                    checkbox.addEventListener('change', function() {
-                        submitBtn.disabled = !this.checked;
-                    });
-
-                    // Klik ikon hapus → buka modal konfirmasi
-                    document.querySelectorAll('.hapus-foto').forEach(icon => {
-                        icon.addEventListener('click', function() {
-                            if (isProcessing) return;
-                            fotoToDelete = this;
-                            confirmDeleteModal.show();
-                        });
-                    });
-
-                    // Saat klik "Hapus" di modal
-                    confirmDeleteBtn.addEventListener('click', function() {
-                        if (!fotoToDelete || isProcessing) return;
-                        isProcessing = true;
-
-                        const foto = fotoToDelete.getAttribute('data-foto');
-                        const input = document.createElement('input');
-                        input.type = 'hidden';
-                        input.name = 'deleted_photos[]';
-                        input.value = foto;
-                        deletedPhotosContainer.appendChild(input);
-
-                        const wrapper = fotoToDelete.closest('.foto-wrapper');
-                        wrapper.style.transition = 'opacity 0.3s ease';
-                        wrapper.style.opacity = '0';
-                        setTimeout(() => {
-                            wrapper.remove();
-                            isProcessing = false;
-
-                            // Update required jika tidak ada foto lagi
-                            const remainingPhotos = document.querySelectorAll('.foto-wrapper').length;
-                            if (remainingPhotos === 0) {
-                                fotoInput.required = true;
-                                document.querySelector('.required-star').style.display = 'inline';
-                            } else {
-                                fotoInput.required = false;
-                                document.querySelector('.required-star').style.display = 'none';
-                            }
-                        }, 300);
-
-                        confirmDeleteModal.hide();
-                    });
-
-                    // Preview foto baru dengan optimasi
-                    fotoInput.addEventListener('change', function(event) {
-                        if (isProcessing) return;
-                        isProcessing = true;
-
-                        const files = Array.from(event.target.files);
-                        const maxSize = 10 * 1024 * 1024;
-                        const validFiles = [];
-                        let loadedCount = 0;
-
-                        files.forEach((file, index) => {
-                            if (file.size <= maxSize) {
-                                validFiles.push(file);
-                                const reader = new FileReader();
-                                reader.onload = function(e) {
-                                    const wrapper = document.createElement('div');
-                                    wrapper.classList.add('position-relative');
-                                    wrapper.style.marginRight = '8px';
-
-                                    const img = document.createElement('img');
-                                    img.src = e.target.result;
-                                    img.alt = 'Foto ' + (index + 1);
-                                    img.style.width = '120px';
-                                    img.style.height = 'auto';
-                                    img.style.objectFit = 'cover';
-                                    img.style.borderRadius = '6px';
-                                    img.style.boxShadow = '0 0 5px rgba(0,0,0,0.2)';
-                                    img.loading = 'lazy'; // Optimasi lazy loading
-
-                                    const icon = document.createElement('span');
-                                    icon.innerHTML = '<i class="bx bx-trash"></i>';
-                                    icon.style.position = 'absolute';
-                                    icon.style.top = '4px';
-                                    icon.style.right = '4px';
-                                    icon.style.cursor = 'pointer';
-                                    icon.style.fontSize = '20px';
-                                    icon.style.color = '#e53935';
-
-                                    icon.onclick = function() {
-                                        validFiles.splice(index, 1);
-                                        const dataTransfer = new DataTransfer();
-                                        validFiles.forEach(f => dataTransfer.items.add(f));
-                                        event.target.files = dataTransfer.files;
-                                        wrapper.remove();
-                                    };
-
-                                    wrapper.appendChild(img);
-                                    wrapper.appendChild(icon);
-                                    previewContainer.appendChild(wrapper);
-
-                                    loadedCount++;
-                                    if (loadedCount === validFiles.length) {
-                                        isProcessing = false;
-                                    }
-                                };
-                                reader.readAsDataURL(file);
-                            } else {
-                                alert(`File "${file.name}" lebih dari 10MB dan tidak akan dipilih.`);
-                                loadedCount++;
-                                if (loadedCount === files.length) {
-                                    isProcessing = false;
-                                }
-                            }
-                        });
-
-                        const dataTransfer = new DataTransfer();
-                        validFiles.forEach(f => dataTransfer.items.add(f));
-                        fotoInput.files = dataTransfer.files;
-
-                        if (validFiles.length === 0) {
-                            isProcessing = false;
-                        }
-                    });
-                });
-            </script>
+            <script src="{{ asset('assets/js/support-views.js') }}"></script>
         @endpush
     @endsection
