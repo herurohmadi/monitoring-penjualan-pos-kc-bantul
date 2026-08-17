@@ -1,0 +1,312 @@
+/* =========================================================
+   DASHBOARD
+   ========================================================= */
+
+
+/* ---------------------------------------------------------
+   Dashboard Cards
+   --------------------------------------------------------- */
+
+.dashboard-cards .card {
+    transition:
+        transform 0.3s ease,
+        box-shadow 0.3s ease;
+
+    border: none;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+
+/* Hover Card */
+
+.dashboard-cards .card:hover {
+    transform: translateY(-5px);
+
+    box-shadow:
+        0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+
+/* ---------------------------------------------------------
+   Card Image
+   --------------------------------------------------------- */
+
+.dashboard-cards .card img {
+    transition:
+        transform 0.3s ease;
+}
+
+
+.dashboard-cards .card:hover img {
+    transform: scale(1.05);
+}
+
+
+/* Ukuran gambar card */
+
+.dashboard-card-image {
+    height: 160px;
+    overflow: hidden;
+}
+
+
+.dashboard-card-image img {
+    object-fit: cover;
+}
+
+
+/* ---------------------------------------------------------
+   Card Title
+   --------------------------------------------------------- */
+
+.dashboard-cards .card-title {
+    font-size: 1rem;
+    line-height: 1.1;
+    font-weight: 600;
+}
+
+
+.dashboard-cards .card-title small {
+    font-size: 0.78em;
+    opacity: 0.8;
+}
+
+
+/* ---------------------------------------------------------
+   Card Text
+   --------------------------------------------------------- */
+
+.dashboard-cards .card-text {
+    font-size: 0.88rem;
+    color: #6c757d;
+}
+
+
+/* ---------------------------------------------------------
+   Card Button
+   --------------------------------------------------------- */
+
+.dashboard-cards .card .btn {
+    font-size: 0.9rem;
+
+    padding:
+        0.45rem 0;
+
+    border-radius: 8px;
+
+    font-weight: 500;
+
+    transition:
+        all 0.3s ease;
+}
+
+
+.dashboard-cards .card .btn:hover {
+    transform: translateY(-1px);
+}
+
+
+/* ---------------------------------------------------------
+   Placeholder Card
+   --------------------------------------------------------- */
+
+.dashboard-cards .card.bg-light {
+    background:
+        linear-gradient(
+            135deg,
+            #f8f9fa 0%,
+            #e9ecef 100%
+        );
+}
+
+
+.dashboard-cards .card.bg-light .card-title {
+    color: #6c757d;
+}
+
+
+.placeholder-title {
+    pointer-events: none;
+    opacity: 0.6;
+}
+
+
+/* ---------------------------------------------------------
+   Filter Loading
+   --------------------------------------------------------- */
+
+.filter-loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+
+/* ---------------------------------------------------------
+   Animasi Card
+   --------------------------------------------------------- */
+
+.dashboard-cards .card {
+    animation:
+        fadeInUp 0.6s ease-out forwards;
+
+    opacity: 0;
+}
+
+
+/* Stagger Animation */
+
+.dashboard-cards .card:nth-child(1) {
+    animation-delay: 0.1s;
+}
+
+
+.dashboard-cards .card:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+
+.dashboard-cards .card:nth-child(3) {
+    animation-delay: 0.3s;
+}
+
+
+.dashboard-cards .card:nth-child(4) {
+    animation-delay: 0.4s;
+}
+
+
+.dashboard-cards .card:nth-child(5) {
+    animation-delay: 0.5s;
+}
+
+
+.dashboard-cards .card:nth-child(6) {
+    animation-delay: 0.6s;
+}
+
+
+/* ---------------------------------------------------------
+   Fade In Up
+   --------------------------------------------------------- */
+
+@keyframes fadeInUp {
+
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+}
+
+
+/* ---------------------------------------------------------
+   Tablet / Desktop
+   --------------------------------------------------------- */
+
+@media (min-width: 768px) {
+
+    .dashboard-cards .card-title {
+        font-size: 1.02rem;
+    }
+
+
+    .dashboard-cards .card-text {
+        font-size: 0.95rem;
+    }
+
+
+    .dashboard-cards .card .btn {
+        font-size: 1rem;
+    }
+
+
+    .dashboard-cards .card-title small {
+        font-size: 0.82em;
+    }
+
+}
+
+
+/* ---------------------------------------------------------
+   Large Desktop
+   --------------------------------------------------------- */
+
+@media (min-width: 1200px) {
+
+    .dashboard-cards .card-title {
+        font-size: 1.12rem;
+    }
+
+
+    .dashboard-cards .card-text {
+        font-size: 1rem;
+    }
+
+
+    .dashboard-cards .card .btn {
+        font-size: 1.03rem;
+    }
+
+
+    .dashboard-cards .card-title small {
+        font-size: 0.88em;
+    }
+
+}
+
+
+/* ---------------------------------------------------------
+   Text Handling
+   --------------------------------------------------------- */
+
+.dashboard-cards .card-title,
+.dashboard-cards .card-text {
+    word-break: break-word;
+}
+
+
+/* ---------------------------------------------------------
+   Dark Mode
+   --------------------------------------------------------- */
+
+@media (prefers-color-scheme: dark) {
+
+    .dashboard-cards .card-text {
+        color: #adb5bd;
+    }
+
+
+    .dashboard-cards .card.bg-light {
+        background:
+            linear-gradient(
+                135deg,
+                #343a40 0%,
+                #495057 100%
+            );
+    }
+
+}
+
+
+/* ---------------------------------------------------------
+   Reduced Motion
+   --------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+
+    .dashboard-cards .card,
+    .dashboard-cards .card:hover,
+    .dashboard-cards .card img,
+    .dashboard-cards .card .btn {
+        transition: none;
+        animation: none;
+        transform: none;
+    }
+
+}
