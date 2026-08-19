@@ -198,7 +198,7 @@
 
                         <div class="dashboard-card-image">
 
-                            <img src="{{ asset('assets/images/bg/icon/maintenance.png') }}" class="w-100 h-100"
+                            <img src="{{ asset('assets/images/bg/icon/kosong.png') }}" class="w-100 h-100"
                                 alt="Belum tersedia" loading="lazy">
 
                         </div>
