@@ -1158,6 +1158,7 @@
                 if (tipe === 'canvasing') {
                     html += `
                 ${row('Jenis Canvasing', escapeHtml(item.jenis_canvasing ?? '-'))}
+                ${row('Alamat', escapeHtml(item.alamat_canvasing ?? '-'))}
                 ${row('Keterangan', escapeHtml(item.keterangan ?? '-'))}
                 ${actionButtons}
             `;
@@ -1166,6 +1167,7 @@
                 if (tipe === 'kunjungan') {
                     html += `
                 ${row('Jenis Kunjungan', escapeHtml(item.jenis_kunjungan ?? '-'))}
+                ${row('Alamat', escapeHtml(item.alamat_kunjungan ?? '-'))}
                 ${row('Tujuan Kunjungan', escapeHtml(item.tujuan_kunjungan ?? '-'))}
                 ${row('Hasil Kunjungan', escapeHtml(item.hasil_kunjungan ?? '-'))}
                 ${row('Keterangan', escapeHtml(item.keterangan_lainnya ?? '-'))}

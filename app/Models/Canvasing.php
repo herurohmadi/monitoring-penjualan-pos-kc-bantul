@@ -14,6 +14,7 @@ class Canvasing extends Model
     protected $fillable = [
         'kantor',
         'tanggal',
+        'alamat_canvasing',
         'jenis_canvasing',
         'keterangan',
         'foto',

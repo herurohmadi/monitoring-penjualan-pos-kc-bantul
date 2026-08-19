@@ -85,6 +85,23 @@
                         @enderror
                     </div>
 
+                    {{-- Alamat --}}
+                    <div class="col-12">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <label for="alamat_canvasing" class="form-label mb-0">Alamat Canvasing</label>
+                            <button type="button" class="btn btn-sm btn-outline-primary" id="useCurrentLocationBtn">
+                                <i class="bx bx-current-location me-1"></i> Lokasi Saat Ini
+                            </button>
+                        </div>
+                        <textarea class="form-control" id="alamat_lengkap" name="alamat_canvasing" rows="3"
+                            placeholder="Alamat canvasing">{{ old('alamat_canvasing') }}</textarea>
+                        <small class="form-text text-muted fst-italic">Klik tombol di atas untuk mengisi alamat otomatis
+                            dari lokasi saat ini.</small>
+                        @error('alamat_canvasing')
+                            <div class="text-danger small mt-1">{{ $message }}</div>
+                        @enderror
+                    </div>
+
                     {{-- Keterangan --}}
                     <div class="col-12">
                         <label for="keterangan" class="form-label">Keterangan</label>

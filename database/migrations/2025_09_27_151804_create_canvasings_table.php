@@ -17,6 +17,7 @@ return new class extends Migration
             $table->id();
             $table->string('kantor')->index();
             $table->dateTime('tanggal')->default(now());
+            $table->text('alamat_canvasing')->nullable();
             $table->string('jenis_canvasing');
             $table->text('keterangan')->nullable();
             $table->json('foto')->nullable();

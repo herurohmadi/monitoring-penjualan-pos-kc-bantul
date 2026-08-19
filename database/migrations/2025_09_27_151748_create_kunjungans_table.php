@@ -17,6 +17,7 @@ class CreateKunjungansTable extends Migration
             $table->id();
             $table->string('kantor')->index();
             $table->dateTime('tanggal')->default(now());
+            $table->text('alamat_kunjungan')->nullable();
             $table->string('jenis_kunjungan');
             $table->string('tujuan_kunjungan');
             $table->text('hasil_kunjungan');

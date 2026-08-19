@@ -26,6 +26,7 @@ class CanvasingController extends Controller
             'kantor' => 'required|string|max:100',
             'tanggal' => 'required|date|before_or_equal:' . now()->setTimezone('Asia/Jakarta'),
             'jenis_canvasing' => 'required|string',
+            'alamat_canvasing' => 'required|string',
             'keterangan' => 'required|string',
             'foto.*' => 'required|image|mimes:jpg,jpeg,png|max:10240', // ✅ max 10MB
         ], [
@@ -37,7 +38,7 @@ class CanvasingController extends Controller
             'tanggal.before_or_equal' => 'Tanggal tidak boleh melebihi waktu saat ini.',
 
             'jenis_canvasing.required' => 'Jenis canvasing wajib dipilih.',
-
+            'alamat_canvasing.required' => 'Alamat canvasing wajib diisi.',
             'keterangan.required' => 'Keterangan wajib diisi.',
 
             'foto.*.required' => 'Foto wajib diupload.',
@@ -81,11 +82,13 @@ class CanvasingController extends Controller
         $validated = $request->validate([
             'tanggal' => 'required|date|before_or_equal:' . now()->setTimezone('Asia/Jakarta'),
             'jenis_canvasing' => 'required|string',
+            'alamat_canvasing' => 'required|string',
             'keterangan' => 'nullable|string',
             'foto.*' => ($isFotoRequired ? 'required' : 'nullable') . '|image|mimes:jpg,jpeg,png|max:10240', // ✅ max 10MB
         ], [
             'foto.*.max' => 'Ukuran gambar maksimal 10MB.',
             'foto.*.required' => 'Foto wajib diupload jika semua foto lama dihapus.',
+            'alamat_canvasing.required' => 'Alamat canvasing wajib diisi.',
         ]);
 
        // Hapus file fisik yang dihapus user
@@ -101,6 +104,7 @@ class CanvasingController extends Controller
         $item->update([
             'tanggal' => $validated['tanggal'] ?? $item->tanggal,
             'jenis_canvasing' => $validated['jenis_canvasing'] ?? $item->jenis_canvasing,
+            'alamat_canvasing' => $validated['alamat_canvasing'] ?? $item->alamat_canvasing,
             'keterangan' => $validated['keterangan'] ?? $item->keterangan,
             'foto' => json_encode(array_merge($fotoLama, $fotoBaru)),
         ]);

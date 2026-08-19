@@ -26,6 +26,7 @@ class KunjunganController extends Controller
             'kantor' => 'required|string|max:100',
             'tanggal' => 'required|date|before_or_equal:' . now()->setTimezone('Asia/Jakarta'),
             'jenis_kunjungan' => 'required|string',
+            'alamat_kunjungan' => 'required|string',
             'tujuan_kunjungan' => 'required|string',
             'hasil_kunjungan' => 'required|string',
             'keterangan_lainnya' => 'nullable|string',
@@ -38,6 +39,8 @@ class KunjunganController extends Controller
             'tanggal.date' => 'Tanggal harus berupa format tanggal yang valid.',
             'jenis_kunjungan.required' => 'Jenis kunjungan wajib diisi.',
             'jenis_kunjungan.string' => 'Jenis kunjungan harus berupa teks.',
+            'alamat_kunjungan.required' => 'Alamat kunjungan wajib diisi.',
+            'alamat_kunjungan.string' => 'Alamat kunjungan harus berupa teks.',
             'tujuan_kunjungan.required' => 'Tujuan kunjungan wajib diisi.',
             'tujuan_kunjungan.string' => 'Tujuan kunjungan harus berupa teks.',
             'hasil_kunjungan.required' => 'Hasil kunjungan wajib diisi.',
@@ -84,6 +87,7 @@ class KunjunganController extends Controller
             'jenis_kunjungan' => 'required|string',
             'tujuan_kunjungan' => 'required|string',
             'hasil_kunjungan' => 'required|string',
+            'alamat_kunjungan' => 'required|string',
             'keterangan_lainnya' => 'nullable|string',
             'foto.*' => ($isFotoRequired ? 'required' : 'nullable') . '|image|mimes:jpg,jpeg,png|max:10240', // ✅ max 10MB
         ], [

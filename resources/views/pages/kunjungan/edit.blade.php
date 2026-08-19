@@ -66,6 +66,21 @@
                             <div class="text-danger small mt-1">{{ $message }}</div>
                         @enderror
                     </div>
+                    {{-- Alamat Lengkap --}}
+                    <div class="col-12">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <label for="alamat_kunjungan" class="form-label mb-0">Alamat Kunjungan</label>
+                            <button type="button" class="btn btn-sm btn-outline-primary" id="useCurrentLocationBtn">
+                                <i class="bx bx-current-location me-1"></i> Lokasi Saat Ini
+                            </button>
+                        </div>
+                        <textarea class="form-control" id="alamat_lengkap" name="alamat_kunjungan" rows="3">{{ old('alamat_kunjungan', $item->alamat_kunjungan) }}</textarea>
+                        <small class="form-text text-muted fst-italic">Klik tombol di atas untuk mengisi alamat otomatis
+                            dari lokasi saat ini.</small>
+                        @error('alamat_kunjungan')
+                            <div class="text-danger small mt-1">{{ $message }}</div>
+                        @enderror
+                    </div>
 
                     {{-- Tujuan --}}
                     <div class="col-12">
@@ -90,7 +105,7 @@
                         <label for="keterangan_lainnya" class="form-label">Keterangan Tambahan</label>
                         <textarea class="form-control" id="keterangan_lainnya" name="keterangan_lainnya" rows="3">{{ old('keterangan_lainnya', $item->keterangan_lainnya) }}</textarea>
                     </div>
-                    
+
                     {{-- Foto Lama --}}
                     @php $fotoLama = json_decode($item->foto ?? '[]', true); @endphp
                     @if (!empty($fotoLama))

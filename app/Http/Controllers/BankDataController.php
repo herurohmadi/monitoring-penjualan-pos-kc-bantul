@@ -134,10 +134,10 @@ class BankDataController extends Controller
                     ];
                     break;
                 case 'canvasing':
-                    $headers = ['No', 'Kantor', 'Tanggal', 'Jenis Canvasing', 'Keterangan', 'Foto'];
+                    $headers = ['No', 'Kantor', 'Tanggal', 'Jenis Canvasing', 'Alamat Canvasing', 'Keterangan', 'Foto'];
                     break;
                 case 'kunjungan':
-                    $headers = ['No', 'Kantor', 'Tanggal', 'Jenis Kunjungan', 'Tujuan Kunjungan', 'Hasil Kunjungan', 'Keterangan Lainnya', 'Foto'];
+                    $headers = ['No', 'Kantor', 'Tanggal', 'Jenis Kunjungan', 'Alamat Kunjungan', 'Tujuan Kunjungan', 'Hasil Kunjungan', 'Keterangan Lainnya', 'Foto'];
                     break;
             }
 
@@ -195,6 +195,7 @@ class BankDataController extends Controller
                                     $item->kantor ?? '-',
                                     $item->tanggal ?? '-',
                                     $item->jenis_canvasing ?? '-',
+                                    $item->alamat_canvasing ?? '-',
                                     $item->keterangan ?? '-',
                                     $link
                                 ];
@@ -208,6 +209,7 @@ class BankDataController extends Controller
                                     $item->kantor ?? '-',
                                     $item->tanggal ?? '-',
                                     $item->jenis_kunjungan ?? '-',
+                                    $item->alamat_kunjungan ?? '-',
                                     $item->tujuan_kunjungan ?? '-',
                                     $item->hasil_kunjungan ?? '-',
                                     $item->keterangan_lainnya ?? '-',
