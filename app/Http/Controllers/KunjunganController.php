@@ -108,6 +108,7 @@ class KunjunganController extends Controller
         $item->update([
             'tanggal' => $validated['tanggal'] ?? $item->tanggal,
             'jenis_kunjungan' => $validated['jenis_kunjungan'] ?? $item->jenis_kunjungan,
+            'alamat_kunjungan' => $validated['alamat_kunjungan'] ?? $item->alamat_kunjungan,
             'tujuan_kunjungan' => $validated['tujuan_kunjungan'] ?? $item->tujuan_kunjungan,
             'hasil_kunjungan' => $validated['hasil_kunjungan'] ?? $item->hasil_kunjungan,
             'keterangan_lainnya' => $validated['keterangan_lainnya'] ?? $item->keterangan_lainnya,

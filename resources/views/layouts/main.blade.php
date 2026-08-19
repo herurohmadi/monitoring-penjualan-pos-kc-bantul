@@ -7,11 +7,11 @@
     <meta name="description" content="@yield('meta_description', 'Deskripsi default aplikasi Anda')" />
 
     <link rel="icon" href="{{ asset('assets/images/favicon/favicon-32x32.png') }}" type="image/png" />
-    
+
     <!-- LOADER PACE -->
     <link href="{{ asset('assets/css/pace.min.css') }}" rel="stylesheet">
     <script src="{{ asset('assets/js/pace.min.js') }}"></script>
-    
+
     <!-- Core CSS -->
     <link href="{{ asset('assets/css/bootstrap.min.css') }}" rel="stylesheet">
     <link href="{{ asset('assets/css/bootstrap-extended.css') }}" rel="stylesheet">

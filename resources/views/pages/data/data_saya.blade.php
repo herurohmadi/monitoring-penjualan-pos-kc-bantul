@@ -383,8 +383,8 @@
 
     {{-- ====== MODAL DETAIL ====== --}}
     <!-- =======================
-                                             MODAL DETAIL AKTIVITAS
-                                             ======================= -->
+                                                             MODAL DETAIL AKTIVITAS
+                                                             ======================= -->
     <div class="modal fade" id="detailModal" tabindex="-1" aria-labelledby="detailModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-xl modal-dialog-scrollable">
             <div class="modal-content border-0 shadow-lg rounded-4">
@@ -457,12 +457,12 @@
     </div>
 
     <!-- =======================
-                                             STYLE RESPONSIVE
-                                             ======================= -->
+                                                             STYLE RESPONSIVE
+                                                             ======================= -->
     <style>
         /* =========================
-                                               MOBILE FIRST (DEFAULT)
-                                               ========================= */
+                                                               MOBILE FIRST (DEFAULT)
+                                                               ========================= */
 
         #activityTabs {
             display: flex;
@@ -504,8 +504,8 @@
         }
 
         /* =========================
-                                               DESKTOP ENHANCEMENT
-                                               ========================= */
+                                                               DESKTOP ENHANCEMENT
+                                                               ========================= */
 
         @media (min-width: 992px) {
 
@@ -539,8 +539,8 @@
     </style>
 
     <!-- =======================
-                                             MODAL KONFIRMASI HAPUS
-                                             ======================= -->
+                                                             MODAL KONFIRMASI HAPUS
+                                                             ======================= -->
     <div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -564,8 +564,8 @@
     </div>
 
     <!-- =======================
-                                             MODAL PREVIEW GAMBAR
-                                             ======================= -->
+                                                             MODAL PREVIEW GAMBAR
+                                                             ======================= -->
     <div class="modal fade" id="imagePreviewModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-fullscreen">
             <div class="modal-content bg-dark">
@@ -1040,35 +1040,35 @@
                     const imageUrl = getImageUrl(foto);
 
                     return `
-                                                                <div class="col-lg-3 col-md-4 col-6 mb-3">
-                                                                    <div class="foto-item">
-                                                                        <img
-                                                                            src="${escapeHtml(imageUrl)}"
-                                                                            alt="Foto ${index + 1}"
-                                                                            data-image-gallery="${galleryId}"
-                                                                            data-image-index="${index}"
-                                                                            data-image-path="${escapeHtml(foto)}"
-                                                                            loading="lazy"
-                                                                        >
+                                                                                <div class="col-lg-3 col-md-4 col-6 mb-3">
+                                                                                    <div class="foto-item">
+                                                                                        <img
+                                                                                            src="${escapeHtml(imageUrl)}"
+                                                                                            alt="Foto ${index + 1}"
+                                                                                            data-image-gallery="${galleryId}"
+                                                                                            data-image-index="${index}"
+                                                                                            data-image-path="${escapeHtml(foto)}"
+                                                                                            loading="lazy"
+                                                                                        >
 
-                                                                        <button
-                                                                            type="button"
-                                                                            class="btn btn-light btn-sm"
-                                                                            data-image-gallery="${galleryId}"
-                                                                            data-image-index="${index}"
-                                                                            aria-label="Lihat foto"
-                                                                        >🔍</button>
-                                                                    </div>
-                                                                </div>
-                                                            `;
+                                                                                        <button
+                                                                                            type="button"
+                                                                                            class="btn btn-light btn-sm"
+                                                                                            data-image-gallery="${galleryId}"
+                                                                                            data-image-index="${index}"
+                                                                                            aria-label="Lihat foto"
+                                                                                        >🔍</button>
+                                                                                    </div>
+                                                                                </div>
+                                                                            `;
                 }).join('')}
             </div>
         `;
             };
 
             /* =========================================================
-               RENDER DATA
-            ========================================================= */
+           RENDER DATA
+        ========================================================= */
 
             const renderItem = (item, tipe, kantor) => {
 
@@ -1081,104 +1081,307 @@
                 const tanggal = formatWaktu(item.tanggal ?? item.created_at);
 
 
-                const actionButtons = `
-            <div class="action-area">
-                <div class="action-box">
-                    <a
-                        href="${baseUrl}/${encodeURIComponent(tipe)}/${encodeURIComponent(item.id)}/edit"
-                        class="btn btn-secondary btn-sm"
-                    >Edit</a>
+                /* =====================================================
+                   ACTION BUTTONS
+                ===================================================== */
 
-                    <button
-                        type="button"
-                        class="btn btn-danger btn-sm js-hapus-data"
-                        data-id="${id}"
-                        data-tipe="${tipeSafe}"
-                        data-kantor="${kantorSafe}"
-                        data-tanggal="${escapeHtml(tanggal)}"
-                    >Hapus</button>
-                </div>
+                const actionButtons = `
+        <div class="action-area">
+            <div class="action-box">
+
+                <a
+                    href="${baseUrl}/${encodeURIComponent(tipe)}/${encodeURIComponent(item.id)}/edit"
+                    class="btn btn-secondary btn-sm"
+                >
+                    Edit
+                </a>
+
+                <button
+                    type="button"
+                    class="btn btn-danger btn-sm js-hapus-data"
+                    data-id="${id}"
+                    data-tipe="${tipeSafe}"
+                    data-kantor="${kantorSafe}"
+                    data-tanggal="${escapeHtml(tanggal)}"
+                >
+                    Hapus
+                </button>
+
             </div>
+        </div>
+    `;
+
+
+                /* =====================================================
+                   ALAMAT + GOOGLE MAPS
+                ===================================================== */
+
+                const getAlamatGoogleMaps = (alamat) => {
+
+                    if (!alamat || alamat === '-') {
+                        return '-';
+                    }
+
+                    const alamatText = String(alamat).trim();
+
+
+                    /*
+                     * Contoh format database:
+                     *
+                     * Latitude: -7.974758, Longitude: 110.299207 |
+                     * Tirtomulyo, Kretek, Bantul, DIY
+                     */
+
+                    const koordinatMatch = alamatText.match(
+                        /Latitude:\s*(-?\d+(?:\.\d+)?),\s*Longitude:\s*(-?\d+(?:\.\d+)?)/i
+                    );
+
+
+                    /*
+                     * Jika tidak ada Latitude / Longitude,
+                     * tampilkan alamat seperti biasa.
+                     */
+
+                    if (!koordinatMatch) {
+                        return escapeHtml(alamatText);
+                    }
+
+
+                    const latitude = koordinatMatch[1];
+                    const longitude = koordinatMatch[2];
+
+
+                    /*
+                     * Ambil alamat setelah tanda |
+                     */
+
+                    const alamatBersih = alamatText
+                        .replace(
+                            /Latitude:\s*-?\d+(?:\.\d+)?,\s*Longitude:\s*-?\d+(?:\.\d+)?\s*\|\s*/i,
+                            ''
+                        )
+                        .trim();
+
+
+                    /*
+                     * URL Google Maps
+                     */
+
+                    const googleMapsUrl =
+                        `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`;
+
+
+                    /*
+                     * Tampilkan alamat sebagai link Google Maps
+                     */
+
+                    return `
+            <a
+                href="${googleMapsUrl}"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="text-decoration-none"
+                title="Buka lokasi di Google Maps"
+            >
+                ${escapeHtml(alamatBersih || `${latitude}, ${longitude}`)}
+            </a>
         `;
+                };
+
+
+                /* =====================================================
+                   HEADER CARD
+                ===================================================== */
 
                 let html = `
-            <div class="card shadow-sm border-0 mb-3">
-                <div class="card-body">
-                    ${fotoHTML}
+        <div class="card shadow-sm border-0 mb-3">
 
-                    ${row(
-                        'Aktivitas',
-                        tipe === 'aktivasi'
-                            ? 'Aktivasi Seller'
-                            : escapeHtml(capitalize(tipe))
-                    )}
+            <div class="card-body">
 
-                    ${row('Tanggal & Jam', escapeHtml(tanggal))}
-        `;
+                ${fotoHTML}
+
+                ${row(
+                    'Aktivitas',
+                    tipe === 'aktivasi'
+                        ? 'Aktivasi Seller'
+                        : escapeHtml(capitalize(tipe))
+                )}
+
+                ${row(
+                    'Tanggal & Jam',
+                    escapeHtml(tanggal)
+                )}
+    `;
+
+
+                /* =====================================================
+                   AKTIVASI SELLER
+                ===================================================== */
 
                 if (tipe === 'aktivasi') {
+
                     const link = item.link_toko?.trim() || '-';
 
                     let linkHTML = '-';
 
+
                     if (link !== '-') {
-                        const fullLink = /^https?:\/\//i.test(link) ?
+
+                        const fullLink =
+                            /^https?:\/\//i.test(link) ?
                             link :
                             `https://${link}`;
 
+
                         linkHTML = `
-                    <a
-                        href="${escapeHtml(fullLink)}"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                    >${escapeHtml(link)}</a>
-                `;
+                <a
+                    href="${escapeHtml(fullLink)}"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    ${escapeHtml(link)}
+                </a>
+            `;
                     }
 
-                    const jenisAktivasiSeller = item.jenis_aktivasi_seller === 1 ?
+
+                    const jenisAktivasiSeller =
+                        item.jenis_aktivasi_seller === 1 ?
                         'Aktivasi Seller Baru' :
                         item.jenis_aktivasi_seller === 0 ?
                         're-Aktivasi Seller (Aktivasi Ulang)' :
                         (item.jenis_aktivasi_seller ?? '-');
 
+
                     html += `
-                ${row('Jenis Aktivasi Seller', escapeHtml(jenisAktivasiSeller))}
-                ${row('Nama Olshops', escapeHtml(item.nama_olshop ?? '-'))}
-                ${row('Nama Pemilik', escapeHtml(item.nama_pemilik ?? '-'))}
-                ${row('Alamat', escapeHtml(item.alamat_lengkap ?? '-'))}
-                ${row('Nomor HP', escapeHtml(item.nomor_hp ?? '-'))}
-                ${row('Jenis Produk', escapeHtml(item.jenis_produk ?? '-'))}
-                ${row('Pesaing', escapeHtml(item.pesaing ?? '-'))}
-                ${row('Keterangan', escapeHtml(item.keterangan_lainnya ?? '-'))}
-                ${row('Link Toko', linkHTML)}
-                ${actionButtons}
-            `;
+
+            ${row(
+                'Jenis Aktivasi Seller',
+                escapeHtml(jenisAktivasiSeller)
+            )}
+
+            ${row(
+                'Nama Olshops',
+                escapeHtml(item.nama_olshop ?? '-')
+            )}
+
+            ${row(
+                'Nama Pemilik',
+                escapeHtml(item.nama_pemilik ?? '-')
+            )}
+
+            ${row(
+                'Alamat',
+                getAlamatGoogleMaps(item.alamat_lengkap)
+            )}
+
+            ${row(
+                'Nomor HP',
+                escapeHtml(item.nomor_hp ?? '-')
+            )}
+
+            ${row(
+                'Jenis Produk',
+                escapeHtml(item.jenis_produk ?? '-')
+            )}
+
+            ${row(
+                'Pesaing',
+                escapeHtml(item.pesaing ?? '-')
+            )}
+
+            ${row(
+                'Keterangan',
+                escapeHtml(item.keterangan_lainnya ?? '-')
+            )}
+
+            ${row(
+                'Link Toko',
+                linkHTML
+            )}
+
+            ${actionButtons}
+
+        `;
                 }
+
+
+                /* =====================================================
+                   CANVASING
+                ===================================================== */
 
                 if (tipe === 'canvasing') {
+
                     html += `
-                ${row('Jenis Canvasing', escapeHtml(item.jenis_canvasing ?? '-'))}
-                ${row('Alamat', escapeHtml(item.alamat_canvasing ?? '-'))}
-                ${row('Keterangan', escapeHtml(item.keterangan ?? '-'))}
-                ${actionButtons}
-            `;
+
+            ${row(
+                'Jenis Canvasing',
+                escapeHtml(item.jenis_canvasing ?? '-')
+            )}
+
+            ${row(
+                'Alamat',
+                getAlamatGoogleMaps(item.alamat_canvasing)
+            )}
+
+            ${row(
+                'Keterangan',
+                escapeHtml(item.keterangan ?? '-')
+            )}
+
+            ${actionButtons}
+
+        `;
                 }
+
+
+                /* =====================================================
+                   KUNJUNGAN
+                ===================================================== */
 
                 if (tipe === 'kunjungan') {
+
                     html += `
-                ${row('Jenis Kunjungan', escapeHtml(item.jenis_kunjungan ?? '-'))}
-                ${row('Alamat', escapeHtml(item.alamat_kunjungan ?? '-'))}
-                ${row('Tujuan Kunjungan', escapeHtml(item.tujuan_kunjungan ?? '-'))}
-                ${row('Hasil Kunjungan', escapeHtml(item.hasil_kunjungan ?? '-'))}
-                ${row('Keterangan', escapeHtml(item.keterangan_lainnya ?? '-'))}
-                ${actionButtons}
-            `;
+
+            ${row(
+                'Jenis Kunjungan',
+                escapeHtml(item.jenis_kunjungan ?? '-')
+            )}
+
+            ${row(
+                'Alamat',
+                getAlamatGoogleMaps(item.alamat_kunjungan)
+            )}
+
+            ${row(
+                'Tujuan Kunjungan',
+                escapeHtml(item.tujuan_kunjungan ?? '-')
+            )}
+
+            ${row(
+                'Hasil Kunjungan',
+                escapeHtml(item.hasil_kunjungan ?? '-')
+            )}
+
+            ${row(
+                'Keterangan',
+                escapeHtml(item.keterangan_lainnya ?? '-')
+            )}
+
+            ${actionButtons}
+
+        `;
                 }
 
+
+                /* =====================================================
+                   CLOSE CARD
+                ===================================================== */
+
                 return html + `
-                </div>
             </div>
-        `;
+        </div>
+    `;
             };
 
             /* =========================================================

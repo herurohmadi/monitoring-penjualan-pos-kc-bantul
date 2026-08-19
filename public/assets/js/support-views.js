@@ -94,172 +94,158 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (useCurrentLocationBtn && alamatLengkapInput) {
 
-        useCurrentLocationBtn.addEventListener('click', function () {
+    useCurrentLocationBtn.addEventListener('click', function () {
 
-            if (!navigator.geolocation) {
-
-                setLocationStatus(
-                    'Browser Anda tidak mendukung fitur lokasi.',
-                    true
-                );
-
-                return;
-            }
-
-
-            useCurrentLocationBtn.disabled = true;
-
-            useCurrentLocationBtn.innerHTML =
-                '<span class="spinner-border spinner-border-sm me-1"></span> Mengambil...';
+        if (!navigator.geolocation) {
 
             setLocationStatus(
-                'Mengambil lokasi saat ini...'
+                'Browser Anda tidak mendukung fitur lokasi.',
+                true
             );
 
+            return;
+        }
 
-            navigator.geolocation.getCurrentPosition(
+        useCurrentLocationBtn.disabled = true;
 
-                async function (position) {
+        useCurrentLocationBtn.innerHTML =
+            '<span class="spinner-border spinner-border-sm me-1"></span> Mengambil...';
 
-                    const latitude =
-                        position.coords.latitude;
+        setLocationStatus(
+            'Mengambil lokasi saat ini...'
+        );
 
-                    const longitude =
-                        position.coords.longitude;
+        navigator.geolocation.getCurrentPosition(
 
+            async function (position) {
 
-                    if (mapContainer) {
+                const latitude =
+                    position.coords.latitude;
 
-                        mapContainer.style.display = 'block';
+                const longitude =
+                    position.coords.longitude;
 
-                    }
+                // Format koordinat yang ditampilkan di awal
+                const koordinat =
+                    `Latitude: ${latitude.toFixed(6)}, Longitude: ${longitude.toFixed(6)}`;
 
+                if (mapContainer) {
+                    mapContainer.style.display = 'block';
+                }
 
-                    try {
+                try {
 
-                        const response = await fetch(
+                    const response = await fetch(
 
-                            `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`,
+                        `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`,
 
-                            {
-                                headers: {
-                                    'Accept': 'application/json',
-                                    'Accept-Language': 'id-ID'
-                                }
+                        {
+                            headers: {
+                                'Accept': 'application/json',
+                                'Accept-Language': 'id-ID'
                             }
-
-                        );
-
-
-                        if (!response.ok) {
-
-                            throw new Error(
-                                'Gagal mengambil alamat'
-                            );
-
                         }
 
-
-                        const data =
-                            await response.json();
-
-
-                        const alamat =
-                            data.display_name ||
-                            `Latitude: ${latitude}, Longitude: ${longitude}`;
-
-
-                        alamatLengkapInput.value =
-                            alamat;
-
-
-                        setLocationStatus(
-
-                            `Lokasi berhasil didapatkan (${latitude.toFixed(5)}, ${longitude.toFixed(5)}).`
-
-                        );
-
-
-                    } catch (error) {
-
-                        alamatLengkapInput.value =
-                            `Latitude: ${latitude}, Longitude: ${longitude}`;
-
-
-                        setLocationStatus(
-
-                            'Lokasi berhasil didapatkan, tetapi alamat lengkap tidak bisa didapatkan. Silakan isi manual.',
-
-                            true
-
-                        );
-
-
-                        console.error(
-                            'Reverse geocoding gagal:',
-                            error
-                        );
-
-                    } finally {
-
-                        resetLocationButton();
-
-                    }
-
-                },
-
-
-                function (error) {
-
-                    let message =
-                        'Gagal mengambil lokasi.';
-
-
-                    if (error.code === 1) {
-
-                        message =
-                            'Akses lokasi ditolak. Izinkan akses lokasi browser.';
-
-                    }
-
-                    else if (error.code === 2) {
-
-                        message =
-                            'Lokasi tidak tersedia saat ini.';
-
-                    }
-
-                    else if (error.code === 3) {
-
-                        message =
-                            'Waktu pengambilan lokasi habis.';
-
-                    }
-
-
-                    setLocationStatus(
-                        message,
-                        true
                     );
 
+                    if (!response.ok) {
+
+                        throw new Error(
+                            'Gagal mengambil alamat'
+                        );
+
+                    }
+
+                    const data =
+                        await response.json();
+
+                    const alamat =
+                        data.display_name ||
+                        'Alamat tidak tersedia';
+
+                    // Latitude & Longitude selalu di awal
+                    // kemudian alamat dalam satu baris
+                    alamatLengkapInput.value =
+                        `${koordinat} | ${alamat}`;
+
+                    setLocationStatus(
+
+                        `Lokasi berhasil didapatkan (${latitude.toFixed(5)}, ${longitude.toFixed(5)}).`
+
+                    );
+
+                } catch (error) {
+
+                    // Jika alamat gagal didapatkan,
+                    // koordinat tetap ditampilkan
+                    alamatLengkapInput.value =
+                        `${koordinat} | Alamat tidak dapat ditemukan. Silakan isi alamat manual.`;
+
+                    setLocationStatus(
+
+                        'Lokasi berhasil didapatkan, tetapi alamat lengkap tidak bisa didapatkan. Silakan isi manual.',
+
+                        true
+
+                    );
+
+                    console.error(
+                        'Reverse geocoding gagal:',
+                        error
+                    );
+
+                } finally {
 
                     resetLocationButton();
 
-                },
-
-
-                {
-                    enableHighAccuracy: true,
-                    timeout: 20000,
-                    maximumAge: 0
                 }
 
-            );
+            },
 
-        });
+            function (error) {
 
-    }
+                let message =
+                    'Gagal mengambil lokasi.';
 
+                if (error.code === 1) {
+
+                    message =
+                        'Akses lokasi ditolak. Izinkan akses lokasi browser.';
+
+                } else if (error.code === 2) {
+
+                    message =
+                        'Lokasi tidak tersedia saat ini.';
+
+                } else if (error.code === 3) {
+
+                    message =
+                        'Waktu pengambilan lokasi habis.';
+
+                }
+
+                setLocationStatus(
+                    message,
+                    true
+                );
+
+                resetLocationButton();
+
+            },
+
+            {
+                enableHighAccuracy: true,
+                timeout: 20000,
+                maximumAge: 0
+            }
+
+        );
+
+    });
+
+}
+
+// map
 
     /*
     |--------------------------------------------------------------------------
