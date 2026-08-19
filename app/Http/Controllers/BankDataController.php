@@ -144,7 +144,10 @@ class BankDataController extends Controller
             $sheet->fromArray($headers, null, 'A1');
             $sheet->getStyle('A1:' . $sheet->getHighestColumn() . '1')->applyFromArray([
                 'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
-                'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
+                'alignment' => [
+    'horizontal' => Alignment::HORIZONTAL_LEFT,
+    'vertical'   => Alignment::VERTICAL_CENTER,
+],
                 'fill' => ['fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID, 'startColor' => ['rgb' => '007bff']]
             ]);
 

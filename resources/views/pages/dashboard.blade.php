@@ -61,11 +61,6 @@
 
                     <input type="month" name="month" class="form-control" id="filterBulan" value="{{ $monthInput }}"
                         aria-describedby="bulanTerpilih">
-
-                    <span class="input-group-text">
-                        <i class="bx bx-calendar"></i>
-                    </span>
-
                 </div>
 
             </div>
@@ -199,8 +194,7 @@
                         <div class="dashboard-card-image">
 
                             <img src="{{ asset('assets/images/bg/icon/kosong.png') }}" class="w-100 h-100"
-                                alt="Belum tersedia" loading="lazy">
-
+                                alt="Belum tersedia" loading="lazy" style="filter: grayscale(100%);">
                         </div>
 
 
