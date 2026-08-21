@@ -244,6 +244,60 @@ document.addEventListener('DOMContentLoaded', function () {
 
     /*
     |--------------------------------------------------------------------------
+    | HELPER GEOLOCATION LANGSUNG UNTUK WATERMARK
+    |--------------------------------------------------------------------------
+    */
+
+    function getCurrentGPSAddress() {
+        return new Promise((resolve) => {
+            if (!navigator.geolocation) {
+                resolve('Lokasi GPS tidak didukung');
+                return;
+            }
+
+            navigator.geolocation.getCurrentPosition(
+                async (position) => {
+                    const lat = position.coords.latitude;
+                    const lon = position.coords.longitude;
+                    const coordsText = `Lat: ${lat.toFixed(6)}, Long: ${lon.toFixed(6)}`;
+
+                    try {
+                        const response = await fetch(
+                            `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}&zoom=18&addressdetails=1`,
+                            {
+                                headers: {
+                                    'Accept': 'application/json',
+                                    'Accept-Language': 'id-ID'
+                                }
+                            }
+                        );
+
+                        if (response.ok) {
+                            const data = await response.json();
+                            const address = data.display_name || 'Alamat tidak ditemukan';
+                            resolve(`${coordsText} | ${address}`);
+                        } else {
+                            resolve(`${coordsText} | Alamat tidak ditemukan`);
+                        }
+                    } catch (err) {
+                        resolve(`${coordsText} | Gagal mendapatkan lokasi`);
+                    }
+                },
+                (error) => {
+                    resolve('Gagal mengambil akses GPS');
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 0
+                }
+            );
+        });
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
     | WATERMARK FOTO VIA CANVAS (MAX LEBAR 50% & FONT KECIL)
     |--------------------------------------------------------------------------
     */
@@ -267,7 +321,10 @@ document.addEventListener('DOMContentLoaded', function () {
         return lines;
     }
 
-    async function addWatermarkToImage(file, textAddress) {
+    async function addWatermarkToImage(file) {
+        // Ambil alamat langsung dari GPS saat proses pembuatan watermark
+        const textAddress = await getCurrentGPSAddress();
+
         return new Promise((resolve) => {
             const reader = new FileReader();
             reader.onload = function (e) {
@@ -305,7 +362,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     
                     // 1. Tulis Alamat (Wrap)
                     ctx.font = `${Math.floor(baseFontSize * 0.7)}px sans-serif`;
-                    const addressLines = getWrappedLines(ctx, textAddress || 'Alamat tidak tersedia', maxWidth);
+                    const addressLines = getWrappedLines(ctx, textAddress, maxWidth);
                     
                     for (let i = addressLines.length - 1; i >= 0; i--) {
                         ctx.fillText(addressLines[i], padding, currentY);
@@ -489,19 +546,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 const files = Array.from(event.target.files);
                 const maxSize = 10 * 1024 * 1024;
-                const currentAddress = alamatLengkapInput ? alamatLengkapInput.value : '';
 
                 validFiles = [];
 
                 if (files.length > 0 && isFromCamera) {
-                    setLocationStatus('Memproses watermark kamera...');
+                    setLocationStatus('Memproses GPS & watermark kamera...');
                 }
 
                 for (const file of files) {
                     if (file.size <= maxSize) {
                         // Watermark HANYA diberikan jika isFromCamera === true
                         if (isFromCamera) {
-                            const watermarkedFile = await addWatermarkToImage(file, currentAddress);
+                            const watermarkedFile = await addWatermarkToImage(file);
                             validFiles.push(watermarkedFile);
                         } else {
                             validFiles.push(file); // Foto biasa tanpa watermark jika dari pilih file
@@ -513,7 +569,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 if (files.length > 0) {
                     if (isFromCamera) {
-                        setLocationStatus('Foto kamera berhasil diberi watermark.');
+                        setLocationStatus('Foto kamera berhasil diberi watermark lokasi GPS.');
                     } else {
                         setLocationStatus('Foto berhasil dipilih.');
                     }
